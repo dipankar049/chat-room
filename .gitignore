@@ -1,0 +1,23 @@
+# Root-level
+.env
+.DS_Store
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# OS
+Thumbs.db
+
+# --- FRONTEND ---
+/frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.DS_Store
+frontend/.vite/
+
+# --- BACKEND ---
+/backend/node_modules/
+backend/.env
+backend/.DS_Store
