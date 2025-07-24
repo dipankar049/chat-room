@@ -1,42 +1,175 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { socket } from '../socket/socket';
 
-export default function HomePage({ username, room, setRoom }) {
+export default function HomePage({ username, setRoom }) {
   const navigate = useNavigate();
 
+  const [roomsList, setRoomsList] = useState([]);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showJoinModal, setShowJoinModal] = useState(false);
+
+  const [newRoom, setNewRoom] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+
+  const [selectedRoom, setSelectedRoom] = useState('');
+  const [joinPassword, setJoinPassword] = useState('');
+
+  useEffect(() => {
+    socket.emit("getRooms");
+
+    socket.on("roomsList", (data) => {
+      setRoomsList(data);
+    });
+
+    return () => socket.off("roomsList");
+  }, []);
+
   const handleCreateRoom = () => {
-    if (room.trim() !== "") {
-      socket.emit("joinRoom", { username, room });
-      navigate('/chat', { replace: true });
-    }
+    socket.emit("createRoom", { room: newRoom, password: newPassword }, (response) => {
+      if (response.success) {
+        // After creation, now JOIN the room
+        socket.emit("joinRoom", { username, room: newRoom, password: newPassword }, (res) => {
+          if (res.success) {
+            setRoom(newRoom);
+            setShowCreateModal(false);
+            navigate('/chat', { replace: true });
+          } else {
+            alert(res.message);
+          }
+        });
+      } else {
+        alert(response.message);
+      }
+    });
   };
 
+
+  const handleJoinRoom = () => {
+    socket.emit(
+      "joinRoom",
+      { username, room: selectedRoom, password: joinPassword },
+      (response) => {
+        if (response.success) {
+          setRoom(selectedRoom);
+          setShowJoinModal(false);
+          // ✅ Send chat history and room to /chat via navigate state
+          navigate("/chat", {
+            replace: true,
+            state: { history: response.history, room: selectedRoom, username },
+          });
+        } else {
+          alert(response.message);
+        }
+      }
+    );
+  };
+
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl p-6 space-y-6">
-        <h2 className="text-2xl font-semibold text-center text-gray-800">Hello {username || 'Guest'}</h2>
-
-        <div className="space-y-2">
-          <label htmlFor="room" className="block text-sm font-medium text-gray-600">
-            Enter Room Name
-          </label>
-          <input
-            id="room"
-            type="text"
-            value={room}
-            onChange={(e) => setRoom(e.target.value)}
-            placeholder="e.g., tech-room"
-            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
-
+    <div className="min-h-screen bg-gray-100 p-6">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">Welcome {username || 'Guest'}</h1>
         <button
-          onClick={handleCreateRoom}
-          className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition"
+          onClick={() => setShowCreateModal(true)}
+          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
         >
-          Create & Join Room
+          + Create Room
         </button>
       </div>
+
+      {/* Room List */}
+      <div className="grid gap-4">
+        {roomsList.length === 0 ? (
+          <p className="text-gray-500">No rooms available.</p>
+        ) : (
+          roomsList.map((roomName, idx) => (
+            <div
+              key={idx}
+              className="flex justify-between items-center bg-white p-4 rounded-xl shadow"
+            >
+              <div className="text-lg font-medium text-gray-800">{roomName}</div>
+              <button
+                onClick={() => {
+                  setSelectedRoom(roomName);
+                  setShowJoinModal(true);
+                }}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+              >
+                Join
+              </button>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Create Room Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-xl w-full max-w-sm space-y-4">
+            <h2 className="text-xl font-semibold text-gray-700">Create New Room</h2>
+            <input
+              type="text"
+              placeholder="Room Name"
+              value={newRoom}
+              onChange={(e) => setNewRoom(e.target.value)}
+              className="w-full border rounded px-3 py-2"
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="w-full border rounded px-3 py-2"
+            />
+            <div className="flex justify-end space-x-2 pt-2">
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateRoom}
+                className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700"
+              >
+                Create
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Join Room Modal */}
+      {showJoinModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-xl w-full max-w-sm space-y-4">
+            <h2 className="text-xl font-semibold text-gray-700">Enter Password for "{selectedRoom}"</h2>
+            <input
+              type="password"
+              placeholder="Room Password"
+              value={joinPassword}
+              onChange={(e) => setJoinPassword(e.target.value)}
+              className="w-full border rounded px-3 py-2"
+            />
+            <div className="flex justify-end space-x-2 pt-2">
+              <button
+                onClick={() => setShowJoinModal(false)}
+                className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleJoinRoom}
+                className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+              >
+                Join
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
