@@ -2,7 +2,13 @@ const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const { Server } = require('socket.io');
+const dbConnection = require("./database/dbConnection");
+const UserRoutes = require("./routes/UserRoutes");
+const ChatRoutes = require("./routes/ChatRoutes");
+const RoomRoutes = require("./routes/RoomRoutes");
+require('dotenv').config();
 
+dbConnection();
 const app = express();
 const server = http.createServer(app);
 
@@ -13,7 +19,11 @@ const io = new Server(server, {
   }
 });
 
+app.use(express.json());
 app.use(cors());
+app.use('/user', UserRoutes);
+app.use('/room', RoomRoutes);
+app.use('/chat', ChatRoutes);
 
 const roomStore = new Map();     // room → password
 const messageStore = new Map();  // room → [{ username, message, time, system }]
@@ -97,6 +107,6 @@ app.get('/', (req, res) => {
   res.send("Chat room server is running...");
 });
 
-server.listen(8000, () => {
+server.listen(process.env.PORT, () => {
   console.log("Server running on port 8000");
 });

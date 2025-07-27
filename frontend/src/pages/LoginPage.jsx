@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-export default function LoginPage({ setUsername }) {
+export default function LoginPage({ setUser, setUsername }) {
   const [name, setName] = useState("");
   const [tab, setTab] = useState("login");
   const navigate = useNavigate();
@@ -11,20 +12,48 @@ export default function LoginPage({ setUsername }) {
     password: "",
   });
 
+  useEffect(() => {
+    const user = JSON.parse(sessionStorage.getItem("chat-room-user"));
+    if (user) {
+      setUser(user);
+    }
+  }, []);
+
   const handleGuest = () => {
     setUsername("");
     navigate("/home", { replace: true });
   };
 
-  const handleLogin = () => {
-    if (name.trim()) {
-      setUsername(name);
-      navigate("/home", { replace: true });
+  const handleLogin = async() => {
+    if (form.email.trim() && form.password.trim()) {
+      axios.post("http://localhost:8000/user/login", form)
+      .then((res) => {
+        setUsername(res.data.user.username);
+        sessionStorage.setItem("chat-room-token", res.data.token);
+        sessionStorage.setItem("chat-room-user", JSON.stringify(res.data.user));
+        navigate("/home", { replace: true });
+        console.log("Login successfull");
+      })
+      .catch((err) => {
+        console.log("Error occured during login",err);
+      });
     }
   };
 
-  const handleSignup = () => {
-
+  const handleSignup = async() => {
+    if(form.username.trim() && form.email.trim() && form.password.trim()) {
+      axios.post("http://localhost:8000/user/signup", form)
+      .then((res) => {
+        setUsername(res.data.user.username);
+        sessionStorage.setItem("chat-room-token", res.data.token);
+        sessionStorage.setItem("chat-room-user", JSON.stringify(res.data.user));
+        navigate("/home", { replace: true });
+        console.log("Signup successfull");
+      })
+      .catch((err) => {
+        console.log("Signup failed", err);
+      });
+    }
   }
 
   return (
@@ -52,8 +81,8 @@ export default function LoginPage({ setUsername }) {
           </label>
           <input
             type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={form.email}
+            onChange={(e) => setForm({...form, email: e.target.value})}
             placeholder="Your email"
             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
@@ -61,7 +90,7 @@ export default function LoginPage({ setUsername }) {
             Enter password
           </label>
           <input
-            type="text"
+            type="password"
             value={form.password}
             onChange={(e) => setForm({...form, password: e.target.value})}
             placeholder="Your password"

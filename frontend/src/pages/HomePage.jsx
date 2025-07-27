@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { socket } from '../socket/socket';
+import { LogOut, PlusCircle } from 'lucide-react';
 
 export default function HomePage({ username, setRoom }) {
   const navigate = useNavigate();
@@ -44,7 +45,6 @@ export default function HomePage({ username, setRoom }) {
     });
   };
 
-
   const handleJoinRoom = () => {
     socket.emit(
       "joinRoom",
@@ -65,18 +65,32 @@ export default function HomePage({ username, setRoom }) {
     );
   };
 
+  const handleLogout = async() => {
+
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Welcome {username || 'Guest'}</h1>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
-        >
-          + Create Room
-        </button>
+        <h1 className="flex text-2xl font-bold text-gray-800">Welcome {username || 'Guest'}</h1>
+        <div className="flex space-x-2">
+          <button
+            onClick={handleLogout}
+            className="flex items-center bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Logout
+          </button>
+
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="flex items-center bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+          >
+            <PlusCircle className="w-4 h-4 mr-2" />
+            Create Room
+          </button>
+        </div>
       </div>
 
       {/* Room List */}
