@@ -12,24 +12,9 @@ const signup = async(req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = new User({ username, email, password: hashedPassword });
-        const storedUser = await newUser.save();
+        await newUser.save();
 
-        // Auto-login after signup
-        const token = jwt.sign(
-            { id: storedUser._id, username: storedUser.username, email: storedUser.email },
-            process.env.JWT_SECRET,
-            { expiresIn: '1h' }
-        );
-
-        res.status(201).json({
-            message: "Signup successful",
-            token,
-            user: {
-                id: storedUser._id,
-                username: storedUser.username,
-                email: storedUser.email
-            }
-        });
+        res.status(201).json({message: "Signup successful"});
     } catch(err) {
         console.log("Error:", err);
         res.status(500).json({ error: "Error occured during signup"});

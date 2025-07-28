@@ -1,30 +1,83 @@
-const Room = require("../models/Room");
+const Room = require('../models/Room');
+const User = require('../models/User');
+const Message = require('../models/Message');
 
-const fetchAllRooms = async(req, res) => {
-    try {
+// Get all rooms
+const fetchAllRooms = async (req, res) => {
+  try {
+    const rooms = await Room.find().populate('owner', 'username email');
+    res.status(200).json(rooms);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
-    } catch(err) {
-        console.log("Error:", err);
-        res.status(500).json({ error: "Error occured"});
+// Create new room
+const createRoom = async (req, res) => {
+  const { name, password, type = "public", ownerId } = req.body;
+
+  if (!name || !password || !ownerId) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+
+  try {
+    // Check if room with same name exists
+    const existingRoom = await Room.findOne({ name });
+    if (existingRoom) {
+      return res.status(409).json({ message: "Room name already taken" });
     }
-}
 
-const createRoom = async(req, res) => {
-    try {
+    const room = new Room({ name, password, type, owner: ownerId, members: [ownerId] });
+    await room.save();
 
-    } catch(err) {
-        console.log("Error:", err);
-        res.status(500).json({ error: "Error occured"});
+    // Also update user's createdRooms
+    await User.findByIdAndUpdate(ownerId, { $push: { createdRooms: room._id } });
+
+    res.status(201).json(room);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
+// Delete room
+const deleteRoom = async (req, res) => {
+  try {
+    const { roomId } = req.params;
+    await Room.findByIdAndDelete(roomId);
+    res.status(200).json({ message: "Room deleted" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Join room
+const joinRoom = async (req, res) => {
+  const { userId, roomName } = req.body;
+
+  try {
+    const room = await Room.findOne({ name: roomName });
+    if (!room) return res.status(404).json({ message: "Room not found" });
+
+    if (!room.members.includes(userId)) {
+      room.members.push(userId);
+      await room.save();
     }
-}
 
-const deleteRoom = async(req, res) => {
-    try {
+    // Optional: Get chat history if needed
+    const messages = await Message.find({ room: room._id }).sort({ createdAt: 1 });
 
-    } catch(err) {
-        console.log("Error:", err);
-        res.status(500).json({ error: "Error occured"});
-    }
-}
+    res.status(200).json({ message: "Joined room", room, history: messages });
+  } catch (err) {
+    console.error("Join Room Error:", err); // ✅ Add this for debugging
+    res.status(500).json({ message: err.message });
+  }
+};
 
-module.exports = { fetchAllRooms, createRoom, deleteRoom };
+
+module.exports = {
+  fetchAllRooms,
+  createRoom,
+  deleteRoom,
+  joinRoom
+};

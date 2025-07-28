@@ -1,21 +1,35 @@
-const Chat = require("../models/Message");
+const Message = require('../models/Message');
 
-const fetchRoomChats = async(req, res) => {
-    try {
+// Get messages by room
+const getRoomMessages = async (req, res) => {
+  try {
+    const { roomId } = req.params;
+    const messages = await Message.find({ room: roomId }).populate('sender', 'username email');
+    res.status(200).json(messages);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
-    } catch(err) {
-        console.log("Error:", err);
-        res.status(500).json({ error: "Error occured"});
-    }
-}
+// Save message
+const saveMessage = async (req, res) => {
+  const { roomId } = req.params;
+  const { message, senderId, system = false } = req.body;
 
-const addChat = async(req, res) => {
-    try {
+  if (!message || !roomId) {
+    return res.status(400).json({ message: "Invalid input" });
+  }
 
-    } catch(err) {
-        console.log("Error:", err);
-        res.status(500).json({ error: "Error occured"});
-    }
-}
+  try {
+    const newMsg = new Message({ message, sender: senderId, room: roomId, system });
+    await newMsg.save();
+    res.status(201).json(newMsg);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
-module.exports = { fetchRoomChats, addChat };
+module.exports = {
+  getRoomMessages,
+  saveMessage
+};

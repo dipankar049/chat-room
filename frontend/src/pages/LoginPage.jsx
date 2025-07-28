@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-export default function LoginPage({ setUser, setUsername }) {
-  const [name, setName] = useState("");
+export default function LoginPage({ setUser }) {
   const [tab, setTab] = useState("login");
   const navigate = useNavigate();
   const [form, setForm] = useState({
@@ -12,42 +11,41 @@ export default function LoginPage({ setUser, setUsername }) {
     password: "",
   });
 
-  useEffect(() => {
-    const user = JSON.parse(sessionStorage.getItem("chat-room-user"));
-    if (user) {
-      setUser(user);
-    }
-  }, []);
-
   const handleGuest = () => {
-    setUsername("");
     navigate("/home", { replace: true });
   };
 
+  const validation = () => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    if (regex.test(form.email) && form.password.length > 3) return true;
+    console.log("Fill all inputs");
+    return false;
+  };
+
   const handleLogin = async() => {
-    if (form.email.trim() && form.password.trim()) {
-      axios.post("http://localhost:8000/user/login", form)
-      .then((res) => {
-        setUsername(res.data.user.username);
-        sessionStorage.setItem("chat-room-token", res.data.token);
-        sessionStorage.setItem("chat-room-user", JSON.stringify(res.data.user));
-        navigate("/home", { replace: true });
-        console.log("Login successfull");
-      })
-      .catch((err) => {
-        console.log("Error occured during login",err);
-      });
-    }
+    if (!validation()) return;
+
+    axios.post("http://localhost:8000/user/login", form)
+    .then((res) => {
+      setUser(res.data.user);
+      sessionStorage.setItem("chat-room-token", res.data.token);
+      sessionStorage.setItem("chat-room-user", JSON.stringify(res.data.user));
+      navigate("/home", { replace: true });
+      console.log("Login successfull");
+    })
+    .catch((err) => {
+      console.log("Error occured during login",err);
+    });
   };
 
   const handleSignup = async() => {
-    if(form.username.trim() && form.email.trim() && form.password.trim()) {
+    if (!validation()) return;
+    
+    if(form.username.trim()) {
       axios.post("http://localhost:8000/user/signup", form)
-      .then((res) => {
-        setUsername(res.data.user.username);
-        sessionStorage.setItem("chat-room-token", res.data.token);
-        sessionStorage.setItem("chat-room-user", JSON.stringify(res.data.user));
-        navigate("/home", { replace: true });
+      .then(() => {
+        setForm({ username: "", email: "", password: "" });
+        setTab("login");
         console.log("Signup successfull");
       })
       .catch((err) => {
@@ -80,7 +78,7 @@ export default function LoginPage({ setUser, setUsername }) {
             Enter email
           </label>
           <input
-            type="text"
+            type="email"
             value={form.email}
             onChange={(e) => setForm({...form, email: e.target.value})}
             placeholder="Your email"
@@ -121,6 +119,7 @@ export default function LoginPage({ setUser, setUsername }) {
           </button>
         </div>
         <p onClick={() => {
+              setForm({ username: "", email: "", password: "" });
               if(tab === "signup") setTab("login");
               else setTab("signup");
             }
