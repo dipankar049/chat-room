@@ -1,8 +1,11 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { socket } from '../socket/socket';
-import { LogOut, PlusCircle } from 'lucide-react';
-import axios from 'axios';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { LogOut, PlusCircle } from "lucide-react";
+import axios from "axios";
+
+import RoomCard from "../components/RoomCard";
+import CreateRoomModal from "../components/CreateRoomModal";
+import JoinRoomModal from "../components/JoinRoomModal";
 
 export default function HomePage({ setUser, user, setRoom }) {
   const navigate = useNavigate();
@@ -11,97 +14,39 @@ export default function HomePage({ setUser, user, setRoom }) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
 
-  const [newRoom, setNewRoom] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-
-  const [selectedRoom, setSelectedRoom] = useState('');
-  const [joinPassword, setJoinPassword] = useState('');
+  const [newRoom, setNewRoom] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [selectedRoom, setSelectedRoom] = useState("");
+  const [joinPassword, setJoinPassword] = useState("");
 
   useEffect(() => {
-    socket.emit("getRooms");
-
-    socket.on("roomsList", (data) => {
-      setRoomsList(data);
-    });
-
-    return () => socket.off("roomsList");
+    async function fetchRooms() {
+      try {
+        const res = await axios.get(`${import.meta.env.VITE_NODE_URI}/room`);
+        setRoomsList(res.data);
+      } catch (err) {
+        console.error("Error fetching rooms:", err);
+      }
+    }
+    fetchRooms();
   }, []);
 
-  const handleCreateRoom = async () => {
-    if (!newRoom || !newPassword) {
-      return alert("Room name and password required");
-    }
-    console.log(newRoom, newPassword, user.id)
+  const handleLogout = async () => {
     try {
-      const createRes = await axios.post("http://localhost:8000/room", {
-        name: newRoom,
-        password: newPassword,
-        type: "public",
-        ownerId: user.id,
-      });
-
-      if (createRes.status === 201) {
-        console.log(createRes.data);
-        console.log(createRes.room);
-        const createdRoom = createRes.data;
-        await joinRoomByName({ roomName: createdRoom.name, password: newPassword });
-      } else {
-        alert("Room creation failed");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Something went wrong!");
-    }
-  };
-
-  const handleJoinRoom = async () => {
-    if (!selectedRoom || !joinPassword) {
-      return alert("Room name and password required");
-    }
-
-    await joinRoomByName({ roomName: selectedRoom, password: joinPassword });
-  };
-
-  const joinRoomByName = async ({ roomName, password }) => {
-    try {
-      const res = await axios.post(`http://localhost:8000/room/joinByName`, {
-        roomName,
-        password,
-        userId: user.id,
-      });
-
-      if (res.status === 200) {
-        const { history } = res.data;
-
-        socket.emit("joinRoom", {
-          roomName,
-          username,
+      const user = JSON.parse(sessionStorage.getItem("chat-room-user"));
+      if (user?.isGuest && user?.createdRoomId) {
+        await fetch(`${import.meta.env.VITE_NODE_URI}/rooms/${user.createdRoomId}`, {
+          method: "DELETE",
         });
-
-        setRoom(roomName);
-        setShowCreateModal(false);
-        setShowJoinModal(false);
-
-        navigate("/chat", {
-          replace: true,
-          state: { history, room: roomName, username: user.username },
-        });
-      } else {
-        alert("Failed to join room");
       }
+      sessionStorage.removeItem("chat-room-token");
+      sessionStorage.removeItem("chat-room-user");
+      setUser(null);
+      setRoom(null);
+      navigate("/");
     } catch (err) {
-      console.error(err);
-      alert(err.response?.data?.message || "Error joining room");
+      console.error("Error during logout:", err);
     }
-  };
-
-  const handleLogout = () => {
-    sessionStorage.removeItem("chat-room-token");
-    sessionStorage.removeItem("chat-room-user");
-    setUser(null);
-    setRoom(null);
-    console.log("Logout successful");
-    navigate("/");
   };
 
   if (!user) return <p>Loading...</p>;
@@ -134,92 +79,48 @@ export default function HomePage({ setUser, user, setRoom }) {
         {roomsList.length === 0 ? (
           <p className="text-gray-500">No rooms available.</p>
         ) : (
-          roomsList.map((roomName, idx) => (
-            <div
+          roomsList.map((room, idx) => (
+            <RoomCard
               key={idx}
-              className="flex justify-between items-center bg-white p-4 rounded-xl shadow"
-            >
-              <div className="text-lg font-medium text-gray-800">{roomName}</div>
-              <button
-                onClick={() => {
-                  setSelectedRoom(roomName);
-                  setShowJoinModal(true);
-                }}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-              >
-                Join
-              </button>
-            </div>
+              room={room}
+              user={user}
+              setRoom={setRoom}
+              navigate={navigate}
+            // onJoin={() => {
+            //   setSelectedRoom(room.name);
+            //   setShowJoinModal(true);
+            // }}
+            />
           ))
         )}
       </div>
 
       {/* Create Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-xl w-full max-w-sm space-y-4">
-            <h2 className="text-xl font-semibold text-gray-700">Create New Room</h2>
-            <input
-              type="text"
-              placeholder="Room Name"
-              value={newRoom}
-              onChange={(e) => setNewRoom(e.target.value)}
-              className="w-full border rounded px-3 py-2"
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full border rounded px-3 py-2"
-            />
-            <div className="flex justify-end space-x-2 pt-2">
-              <button
-                onClick={() => setShowCreateModal(false)}
-                className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleCreateRoom}
-                className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700"
-              >
-                Create
-              </button>
-            </div>
-          </div>
-        </div>
+        <CreateRoomModal
+          newRoom={newRoom}
+          setNewRoom={setNewRoom}
+          // newPassword={newPassword}
+          // setNewPassword={setNewPassword}
+          user={user}
+          setRoom={setRoom}
+          onClose={() => setShowCreateModal(false)}
+          navigate={navigate}
+        />
       )}
 
       {/* Join Modal */}
-      {showJoinModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-xl w-full max-w-sm space-y-4">
-            <h2 className="text-xl font-semibold text-gray-700">Enter Password for "{selectedRoom}"</h2>
-            <input
-              type="password"
-              placeholder="Room Password"
-              value={joinPassword}
-              onChange={(e) => setJoinPassword(e.target.value)}
-              className="w-full border rounded px-3 py-2"
-            />
-            <div className="flex justify-end space-x-2 pt-2">
-              <button
-                onClick={() => setShowJoinModal(false)}
-                className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleJoinRoom}
-                className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
-              >
-                Join
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* {showJoinModal && (
+        <JoinRoomModal
+          selectedRoom={selectedRoom}
+          // joinPassword={joinPassword}
+          // setJoinPassword={setJoinPassword}
+          user={user}
+          setRoom={setRoom}
+          onClose={() => setShowJoinModal(false)}
+          navigate={navigate}
+        />
+      )} */}
     </div>
   );
 }

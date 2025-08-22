@@ -14,9 +14,10 @@ const fetchAllRooms = async (req, res) => {
 
 // Create new room
 const createRoom = async (req, res) => {
-  const { name, password, type = "public", ownerId } = req.body;
+  const { name, type = "public", ownerId, guestOwnerId } = req.body;
+  console.log(name, ownerId, guestOwnerId);
 
-  if (!name || !password || !ownerId) {
+  if (!name || (!ownerId && !guestOwnerId)) {
     return res.status(400).json({ message: "Missing required fields" });
   }
 
@@ -27,18 +28,35 @@ const createRoom = async (req, res) => {
       return res.status(409).json({ message: "Room name already taken" });
     }
 
-    const room = new Room({ name, password, type, owner: ownerId, members: [ownerId] });
-    await room.save();
-
-    // Also update user's createdRooms
-    await User.findByIdAndUpdate(ownerId, { $push: { createdRooms: room._id } });
+    let room;
+    if (ownerId) {
+      // Registered user
+      room = new Room({
+        name,
+        // password,
+        type,
+        owner: ownerId,
+        members: [ownerId]
+      });
+      await room.save();
+      await User.findByIdAndUpdate(ownerId, { $push: { createdRooms: room._id } });
+    } else {
+      // Guest user
+      room = new Room({
+        name,
+        // password,
+        type,
+        guestOwnerId,
+        isTemporary: true
+      });
+      await room.save();
+    }
 
     res.status(201).json(room);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
-
 
 // Delete room
 const deleteRoom = async (req, res) => {
@@ -69,7 +87,7 @@ const joinRoom = async (req, res) => {
 
     res.status(200).json({ message: "Joined room", room, history: messages });
   } catch (err) {
-    console.error("Join Room Error:", err); // ✅ Add this for debugging
+    console.error("Join Room Error:", err);
     res.status(500).json({ message: err.message });
   }
 };
