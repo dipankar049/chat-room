@@ -149,7 +149,8 @@ export default function ChatPage() {
                     className={`message-wrapper ${isCurrentUser ? "current-user" : "other-user"}`}
                   >
                     <div className={`message-bubble ${isCurrentUser ? "current-user-bubble" : "other-user-bubble"}`}>
-                      <span className="message-text">{msg.text}</span>
+                      {!isCurrentUser && <p className="sender-name">{msg.senderName}</p>}
+                      <p className="message-text">{msg.text}</p>
                     </div>
                     <div className="message-time">
                       {new Date(msg.createdAt).toLocaleTimeString([], {

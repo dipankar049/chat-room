@@ -1,5 +1,6 @@
 import axios from "axios";
 import "../style/CreateRoomPage.css";
+import { useState } from "react";
 
 export default function CreateRoomModal({
   newRoom,
@@ -12,11 +13,13 @@ export default function CreateRoomModal({
   navigate,
 }) {
   const handleCreateRoom = async () => {
+    const [loading, setLoading] = useState(false);
     if (!newRoom) {
       return alert("Room name is required");
     }
 
     try {
+      setLoading(true);
       const body = {
         name: newRoom,
         // password: newPassword,
@@ -54,6 +57,8 @@ export default function CreateRoomModal({
     } catch (error) {
       console.error(error);
       alert("Something went wrong!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -76,8 +81,8 @@ export default function CreateRoomModal({
         className="create-room-input"
       /> */}
         <div id="create-room-buttons">
-          <button id="cancel-btn" onClick={onClose}>Cancel</button>
-          <button id="create-btn" onClick={handleCreateRoom}>Create</button>
+          <button id="cancel-btn" disabled={loading} onClick={onClose}>Cancel</button>
+          <button id="create-btn" disabled={loading} onClick={handleCreateRoom}>{loading ? "Creating..." : "Create"}</button>
         </div>
       </div>
     </div>

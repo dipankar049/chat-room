@@ -64,6 +64,14 @@
   margin-top: 40vh;
 }
 
+.sender-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4b5563;
+  margin-bottom: 2px;
+  display: block;
+}
+
 /* System messages */
 .system-message {
   text-align: center;
