@@ -1,0 +1,71 @@
+/* Overlay */
+#create-room-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(2px);
+  padding: 0 1.5rem;
+  z-index: 50;
+}
+
+/* Modal Box */
+#create-room-box {
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  width: 100%;
+  max-width: 24rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+}
+
+/* Title */
+#create-room-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Input */
+.create-room-input {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  outline: none;
+}
+
+/* Buttons */
+#create-room-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+#cancel-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  background-color: #d1d5db;
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+#cancel-btn:hover {
+  background-color: #9ca3af;
+}
+
+#create-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  background-color: #16a34a;
+  color: #fff;
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+#create-btn:hover {
+  background-color: #15803d;
+}

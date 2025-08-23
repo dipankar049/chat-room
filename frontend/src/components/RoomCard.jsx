@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { socket } from "../socket/socket";
+import "../style/RoomCard.css";
 
 export default function RoomCard({ room, user, setRoom, navigate }) {
   const [noOfUsers, setNoOfUsers] = useState(0);
@@ -61,20 +62,17 @@ export default function RoomCard({ room, user, setRoom, navigate }) {
 
 
   return (
-    <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow">
-      <div>
-        <div className="text-lg font-medium text-gray-800">{room.name}</div>
-        <div className="text-sm text-gray-500">
-          Owner: {room.owner ? room.owner.username : room.guestOwnerId || "Unknown"}
-        </div>
-        <div className="text-sm text-gray-500">Users Online: {noOfUsers}</div>
+  <div className="roomcard-container">
+    <div className="roomcard-info">
+      <div className="roomcard-name">{room.name}</div>
+      <div className="roomcard-owner">
+        Owner: {room.owner ? room.owner.username : room.guestOwnerId || "Unknown"}
       </div>
-      <button
-        onClick={handleJoinRoom}
-        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-      >
-        Join
-      </button>
+      <div className="roomcard-users">Users Online: {noOfUsers}</div>
     </div>
-  );
+    <button className="roomcard-join-btn" onClick={handleJoinRoom}>
+      Join
+    </button>
+  </div>
+);
 }

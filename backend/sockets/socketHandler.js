@@ -61,10 +61,10 @@ module.exports = function socketHandler(io) {
         createdAt: new Date(),
       };
 
-      // Emit immediately (real-time feeling)
+      // Emit immediately
       io.to(roomName).emit("receiveMessage", message);
 
-      // Save in DB in background
+      // Save in DB later
       Room.findOne({ name: roomName })
         .then((room) => {
           if (!room) return;
@@ -90,7 +90,6 @@ module.exports = function socketHandler(io) {
       callback({ count: users.length });
     });
 
-    // Left room
     // Leave room
     socket.on("leaveRoom", async ({ roomName, username }) => {
       if (!roomName || !username) return;

@@ -1,0 +1,100 @@
+/* Container */
+#homepage-container {
+  min-height: 100vh;
+  background-color: #f3f4f6;
+  padding: 1.5rem;
+}
+
+/* Header */
+#homepage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+#homepage-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+#header-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Create Room Button */
+#create-room-btn {
+  display: flex;
+  align-items: center;
+  background-color: #16a34a;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+}
+#create-room-btn:hover {
+  background-color: #15803d;
+}
+
+.create-room-text {
+  font-size: 0.875rem;
+}
+@media (min-width: 640px) {
+  .create-room-text {
+    font-size: 1rem;
+  }
+}
+
+/* Logout Button */
+#logout-btn {
+  display: flex;
+  align-items: center;
+  background-color: #dc2626;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+}
+#logout-btn:hover {
+  background-color: #b91c1c;
+}
+
+.logout-icon {
+  width: 1rem;
+  height: 1rem;
+}
+@media (min-width: 640px) {
+  .logout-icon {
+    margin-right: 0.5rem;
+  }
+}
+
+.logout-text {
+  display: none;
+}
+@media (min-width: 640px) {
+  .logout-text {
+    display: inline;
+  }
+}
+
+/* Room List Grid */
+#rooms-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+/* Loading Text */
+#loading-text {
+  text-align: center;
+  margin-top: 40vh;
+}
+
+/* No Rooms Available Text */
+#no-rooms-text {
+  color: #6b7280;
+  text-align: center;
+  margin-top: 40vh;
+}

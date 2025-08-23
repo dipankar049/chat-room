@@ -1,0 +1,39 @@
+.roomcard-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  padding: 1rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.roomcard-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.roomcard-name {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.roomcard-owner,
+.roomcard-users {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.roomcard-join-btn {
+  background-color: #2563eb;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+.roomcard-join-btn:hover {
+  background-color: #1d4ed8;
+}

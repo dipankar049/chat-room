@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { socket } from "../socket/socket";
+import "../style/ChatPage.css";
 
 export default function ChatPage() {
   const { room } = useParams();
@@ -11,7 +12,7 @@ export default function ChatPage() {
   const [users, setUsers] = useState([]);
   const [typingUsers, setTypingUsers] = useState([]);
   const messagesEndRef = useRef(null);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
 
   const [showUsers, setShowUsers] = useState(false);
 
@@ -104,22 +105,22 @@ export default function ChatPage() {
   }, [messages]);
 
   return (
-    <div className="flex h-screen">
+    <div id="chatpage-container">
       {/* Chat section */}
-      <div className="flex-1 flex flex-col">
+      <div id="chat-section">
         {/* Header */}
-        <div className="p-4 bg-white shadow flex justify-between items-center">
-          <h2 className="font-bold text-lg">{room}</h2>
+        <div id="chat-header">
+          <h2 id="chat-room-name">{room}</h2>
 
-          <div className="flex items-center gap-4">
+          <div id="header-right">
             {typingUsers.length > 0 && (
-              <div className="text-sm text-gray-500">
+              <div id="typing-text">
                 {typingUsers.join(", ")} typing...
               </div>
             )}
             <button
+              id="online-users-btn"
               onClick={() => setShowUsers(!showUsers)}
-              className="ml-4 text-sm bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
             >
               Online ({users?.length || 0})
             </button>
@@ -127,84 +128,65 @@ export default function ChatPage() {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 bg-gray-100">
+        <div id="messages-container">
           {loading ? (
-            <div className="text-center text-sm text-gray-500 mt-[40vh]">Loading messages...</div>
+            <div id="loading-messages">Loading messages...</div>
           ) : (
             <>
-            {messages.map((msg, i) => {
-              if (msg.system) {
-                // System message → small centered text
+              {messages.map((msg, i) => {
+                if (msg.system) {
+                  return (
+                    <div key={i} className="system-message">
+                      {msg.text}
+                    </div>
+                  );
+                }
+
+                const isCurrentUser = msg.senderName === user?.username;
                 return (
-                  <div key={i} className="text-center text-xs text-gray-500 my-2">
-                    {msg.text}
+                  <div
+                    key={i}
+                    className={`message-wrapper ${isCurrentUser ? "current-user" : "other-user"}`}
+                  >
+                    <div className={`message-bubble ${isCurrentUser ? "current-user-bubble" : "other-user-bubble"}`}>
+                      <span className="message-text">{msg.text}</span>
+                    </div>
+                    <div className="message-time">
+                      {new Date(msg.createdAt).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </div>
                   </div>
                 );
-              }
-
-              // Normal messages
-              const isCurrentUser = msg.senderName === user?.username;
-              return (
-                <div
-                  key={i}
-                  className={`mb-3 max-w-xs ${isCurrentUser ? "ml-auto text-right" : "mr-auto text-left"
-                    }`}
-                >
-                  <div
-                    className={`inline-block px-3 py-2 rounded-2xl break-words whitespace-pre-wrap max-w-full ${isCurrentUser
-                        ? "bg-blue-500 text-white"
-                        : "bg-white text-gray-900 shadow"
-                      }`}
-                  >
-                    <span className="block text-sm">{msg.text}</span>
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    {new Date(msg.createdAt).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </div>
-                </div>
-              );
-            })}
-            <div ref={messagesEndRef} />
+              })}
+              <div ref={messagesEndRef} />
             </>
           )}
         </div>
 
-
         {/* Input */}
-        <div className="p-2 flex border-t bg-white">
+        <div id="chat-input-container">
           <input
             value={newMessage}
             onChange={handleTyping}
-            className="flex-1 border p-2 rounded"
+            id="chat-input"
             placeholder="Type a message..."
           />
-          <button
-            onClick={handleSend}
-            className="ml-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            Send
-          </button>
+          <button id="send-btn" onClick={handleSend}>Send</button>
         </div>
       </div>
 
       {/* Drawer for Online Users */}
       {showUsers && (
-        <div className="fixed right-0 top-0 h-full w-60 bg-white border-l p-4 shadow-lg z-50">
-          <div className="flex justify-between items-center mb-2">
-            <h2 className="font-bold">Online Users</h2>
-            <button
-              onClick={() => setShowUsers(false)}
-              className="text-sm text-red-500 hover:underline"
-            >
-              Close
-            </button>
+        <div id="online-users-drawer">
+          <div id="drawer-header">
+            <h2>Online Users</h2>
+            <button id="close-drawer-btn" onClick={() => setShowUsers(false)}>Close</button>
           </div>
-          <ul>
+          <ul id="online-users-list">
             {users?.map((u, i) => (
-              <li key={i} className="py-1 border-b">
+              <li key={i} className="online-user">
                 {u === user.username ? "You" : u}
               </li>
             ))}
@@ -213,5 +195,4 @@ export default function ChatPage() {
       )}
     </div>
   );
-
 }

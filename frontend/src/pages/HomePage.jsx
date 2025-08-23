@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogOut, PlusCircle } from "lucide-react";
 import axios from "axios";
+import "../style/HomePage.css";
 
 import RoomCard from "../components/RoomCard";
 import CreateRoomModal from "../components/CreateRoomModal";
@@ -57,77 +58,59 @@ export default function HomePage({ setUser, user, setRoom }) {
   if (!user) return <p>Loading...</p>;
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div id="homepage-container">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Chat Room</h1>
-        <div className="flex space-x-2">
+      <div id="homepage-header">
+        <h1 id="homepage-title">Chat Room</h1>
+        <div id="header-buttons">
           <button
+            id="create-room-btn"
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
           >
-            {/* <PlusCircle className="w-4 h-4 mr-2" /> */}
-            <span className="text-sm sm:text-base">Create Room</span>
+            <span className="create-room-text">Create Room</span>
           </button>
           <button
+            id="logout-btn"
             onClick={handleLogout}
-            className="flex items-center bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
           >
-            <LogOut className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Logout</span>
+            <LogOut className="logout-icon" />
+            <span className="logout-text">Logout</span>
           </button>
         </div>
       </div>
 
       {/* Room List */}
-      {Loading ? 
-      <p className="text-center mt-[40vh]">Loading rooms...</p>
-      : <div className="grid gap-4">
-        {roomsList.length === 0 ? (
-          <p className="text-gray-500 text-center mt-[40vh]">No rooms available.</p>
-        ) : (
-          roomsList.map((room, idx) => (
-            <RoomCard
-              key={room.name}
-              room={room}
-              user={user}
-              setRoom={setRoom}
-              navigate={navigate}
-            // onJoin={() => {
-            //   setSelectedRoom(room.name);
-            //   setShowJoinModal(true);
-            // }}
-            />
-          ))
-        )}
-      </div>}
+      {Loading ? (
+        <p id="loading-text">Loading rooms...</p>
+      ) : (
+        <div id="rooms-grid">
+          {roomsList.length === 0 ? (
+            <p id="no-rooms-text">No rooms available.</p>
+          ) : (
+            roomsList.map((room) => (
+              <RoomCard
+                key={room.name}
+                room={room}
+                user={user}
+                setRoom={setRoom}
+                navigate={navigate}
+              />
+            ))
+          )}
+        </div>
+      )}
 
       {/* Create Modal */}
       {showCreateModal && (
         <CreateRoomModal
           newRoom={newRoom}
           setNewRoom={setNewRoom}
-          // newPassword={newPassword}
-          // setNewPassword={setNewPassword}
           user={user}
           setRoom={setRoom}
           onClose={() => setShowCreateModal(false)}
           navigate={navigate}
         />
       )}
-
-      {/* Join Modal */}
-      {/* {showJoinModal && (
-        <JoinRoomModal
-          selectedRoom={selectedRoom}
-          // joinPassword={joinPassword}
-          // setJoinPassword={setJoinPassword}
-          user={user}
-          setRoom={setRoom}
-          onClose={() => setShowJoinModal(false)}
-          navigate={navigate}
-        />
-      )} */}
     </div>
   );
 }

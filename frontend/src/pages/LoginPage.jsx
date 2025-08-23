@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { validateUserInput } from '../utils/validation';
+import "../style/LoginPage.css";
 
 export default function LoginPage({ setUser }) {
   const [tab, setTab] = useState("login");
@@ -74,81 +75,80 @@ export default function LoginPage({ setUser }) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl p-6 space-y-6">
-        <h2 className="text-2xl font-semibold text-center text-gray-800">
-          Welcome to Chat App
-        </h2>
+    <div id="loginpage-container">
+      <div id="login-box">
+        <h2 id="login-title">Welcome to Chat App</h2>
 
-        <div className="space-y-2">
-          {tab === "signup" &&
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-600">
-                Enter username
-              </label>
+        <div id="form-container">
+          {tab === "signup" && (
+            <div className="form-group">
+              <label className="form-label">Enter username</label>
               <input
                 type="text"
                 value={form.username}
                 onChange={(e) => setForm({ ...form, username: e.target.value })}
                 placeholder="username"
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="form-input"
               />
             </div>
-          }
-          <label className="block text-sm font-medium text-gray-600">
-            Enter email
-          </label>
-          <input
-            type="email"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            placeholder="Your email"
-            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-          <label className="block text-sm font-medium text-gray-600">
-            Enter password
-          </label>
-          <input
-            type="password"
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-            placeholder="Your password"
-            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
+          )}
+
+          <div className="form-group">
+            <label className="form-label">Enter email</label>
+            <input
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              placeholder="Your email"
+              className="form-input"
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Enter password</label>
+            <input
+              type="password"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              placeholder="Your password"
+              className="form-input"
+            />
+          </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3">
-          {tab === "signup" ?
+        <div id="button-group">
+          {tab === "signup" ? (
             <button
+              id="signup-btn"
               onClick={handleSignup}
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition"
             >
               {loading ? "Signing..." : "Signup"}
             </button>
-            : <button
+          ) : (
+            <button
+              id="login-btn"
               onClick={handleLogin}
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition"
             >
               {loading ? "Logging in..." : "Login"}
             </button>
-          }
+          )}
           <button
+            id="guest-btn"
             onClick={joinGuestHandler}
             disabled={loading}
-            className="w-full border border-gray-400 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition"
           >
             Join as Guest
           </button>
         </div>
 
         <p
+          id="toggle-tab"
           onClick={() => {
             setForm({ username: "", email: "", password: "" });
             setTab(tab === "signup" ? "login" : "signup");
           }}
-          className="cursor-pointer text-sm text-blue-500 text-center"
         >
           {tab === "signup"
             ? "Already have an account? Login here"

@@ -1,12 +1,45 @@
-# React + Vite
+# Chat Room
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A simple real-time chat application built with **React**, **Socket.IO**, **Node.js**, and **MongoDB**. Users can join rooms, see online users, and chat in real-time.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+- Create or join chat rooms
+- Real-time messaging using Socket.IO
+- Shows online users in each room
+- Typing indicator
+- Message history 
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## Tech Stack
+
+- **Frontend:** React, CSS
+- **Backend:** Node.js, Express.js, Socket.IO
+- **Database:** MongoDB (Mongoose)
+
+---
+
+## Installation
+
+```bash
+#1. Clone the repo:
+git clone https://github.com/dipankar049/chat-room.git
+cd chat-room
+
+# 2. Install dependencies:
+npm install
+
+#3. Set up .env file for MongoDB connection:
+MONGO_URI=your_mongodb_connection_string
+PORT=5000
+
+#4. Run backend server:
+node server
+
+#5. Run frontend:
+npm start
+
+```

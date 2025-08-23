@@ -1,4 +1,5 @@
 import axios from "axios";
+import "../style/CreateRoomPage.css";
 
 export default function CreateRoomModal({
   newRoom,
@@ -57,36 +58,26 @@ export default function CreateRoomModal({
   };
 
   return (
-    <div className="fixed inset-0 backdrop-blur-xs flex justify-center items-center z-50 px-6">
-      <div className="bg-white p-6 rounded-xl w-full max-w-sm space-y-4 shadow-xl">
-        <h2 className="text-xl font-semibold text-gray-700">Create New Room</h2>
+    <div id="create-room-overlay">
+      <div id="create-room-box">
+        <h2 id="create-room-title">Create New Room</h2>
         <input
           type="text"
           placeholder="Room Name"
           value={newRoom}
           onChange={(e) => setNewRoom(e.target.value)}
-          className="w-full border rounded px-3 py-2"
+          className="create-room-input"
         />
         {/* <input
-          type="password"
-          placeholder="Password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          className="w-full border rounded px-3 py-2"
-        /> */}
-        <div className="flex justify-end space-x-2 pt-2">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleCreateRoom}
-            className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700"
-          >
-            Create
-          </button>
+        type="password"
+        placeholder="Password"
+        value={newPassword}
+        onChange={(e) => setNewPassword(e.target.value)}
+        className="create-room-input"
+      /> */}
+        <div id="create-room-buttons">
+          <button id="cancel-btn" onClick={onClose}>Cancel</button>
+          <button id="create-btn" onClick={handleCreateRoom}>Create</button>
         </div>
       </div>
     </div>

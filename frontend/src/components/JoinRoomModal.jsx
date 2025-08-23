@@ -27,7 +27,7 @@ export default function JoinRoomModal({
         if (response.success) {
           setRoom(selectedRoom);
           onClose();
-          navigate(`/chat`); // pass via URL param
+          navigate(`/chat`);
         } else {
           alert(response.error || "Failed to join room");
         }
@@ -40,7 +40,7 @@ export default function JoinRoomModal({
       handleJoinRoom();
     }
   }, [selectedRoom]);
-  
+
 
   // return (
   //   <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
