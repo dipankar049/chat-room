@@ -16,16 +16,19 @@ export default function HomePage({ setUser, user, setRoom }) {
 
   const [newRoom, setNewRoom] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [selectedRoom, setSelectedRoom] = useState("");
   const [joinPassword, setJoinPassword] = useState("");
+  const [Loading, setLoading] = useState(false);
 
   useEffect(() => {
     async function fetchRooms() {
+      setLoading(true);
       try {
         const res = await axios.get(`${import.meta.env.VITE_NODE_URI}/room`);
         setRoomsList(res.data);
       } catch (err) {
         console.error("Error fetching rooms:", err);
+      } finally {
+        setLoading(false);
       }
     }
     fetchRooms();
@@ -34,11 +37,13 @@ export default function HomePage({ setUser, user, setRoom }) {
   const handleLogout = async () => {
     try {
       const user = JSON.parse(sessionStorage.getItem("chat-room-user"));
-      if (user?.isGuest && user?.createdRoomId) {
-        await fetch(`${import.meta.env.VITE_NODE_URI}/rooms/${user.createdRoomId}`, {
-          method: "DELETE",
-        });
-      }
+      console.log("Logging out")
+      // if (user?.isGuest && user?.createdRoomId) {
+      //   console.log("deleting out")
+      //   await fetch(`${import.meta.env.VITE_NODE_URI}/rooms/${user.createdRoomId}`, {
+      //     method: "DELETE",
+      //   });
+      // }
       sessionStorage.removeItem("chat-room-token");
       sessionStorage.removeItem("chat-room-user");
       setUser(null);
@@ -55,33 +60,35 @@ export default function HomePage({ setUser, user, setRoom }) {
     <div className="min-h-screen bg-gray-100 p-6">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Welcome {user.username}</h1>
+        <h1 className="text-2xl font-bold text-gray-800">Chat Room</h1>
         <div className="flex space-x-2">
-          <button
-            onClick={handleLogout}
-            className="flex items-center bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
-          </button>
           <button
             onClick={() => setShowCreateModal(true)}
             className="flex items-center bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
           >
-            <PlusCircle className="w-4 h-4 mr-2" />
-            Create Room
+            {/* <PlusCircle className="w-4 h-4 mr-2" /> */}
+            <span className="text-sm sm:text-base">Create Room</span>
+          </button>
+          <button
+            onClick={handleLogout}
+            className="flex items-center bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+          >
+            <LogOut className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Logout</span>
           </button>
         </div>
       </div>
 
       {/* Room List */}
-      <div className="grid gap-4">
+      {Loading ? 
+      <p className="text-center mt-[40vh]">Loading rooms...</p>
+      : <div className="grid gap-4">
         {roomsList.length === 0 ? (
-          <p className="text-gray-500">No rooms available.</p>
+          <p className="text-gray-500 text-center mt-[40vh]">No rooms available.</p>
         ) : (
           roomsList.map((room, idx) => (
             <RoomCard
-              key={idx}
+              key={room.name}
               room={room}
               user={user}
               setRoom={setRoom}
@@ -93,7 +100,7 @@ export default function HomePage({ setUser, user, setRoom }) {
             />
           ))
         )}
-      </div>
+      </div>}
 
       {/* Create Modal */}
       {showCreateModal && (

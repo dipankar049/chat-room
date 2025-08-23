@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import ChatPage from './pages/ChatPage';
 import HomePage from './pages/HomePage';
+import { socket } from "./socket/socket";
 
 function App() {
   const [username, setUsername] = useState("");
@@ -18,6 +19,14 @@ function App() {
     if (!user) return <Navigate to="/" replace />;
     return children;
   };
+
+  useEffect(() => {
+    if (!socket.connected) {
+      socket.connect();
+    }
+    return () => socket.disconnect();
+  }, []);
+
 
   return (
     <BrowserRouter>

@@ -1,5 +1,4 @@
 import axios from "axios";
-import { socket } from "../socket/socket";
 
 export default function CreateRoomModal({
   newRoom,
@@ -41,11 +40,6 @@ export default function CreateRoomModal({
         if (res.status === 200) {
           const { history } = res.data;
 
-          socket.emit("joinRoom", {
-            roomName: createdRoom.name,
-            username: user.username,
-          });
-
           setRoom(createdRoom.name);
           onClose();
 
@@ -63,8 +57,8 @@ export default function CreateRoomModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white p-6 rounded-xl w-full max-w-sm space-y-4">
+    <div className="fixed inset-0 backdrop-blur-xs flex justify-center items-center z-50 px-6">
+      <div className="bg-white p-6 rounded-xl w-full max-w-sm space-y-4 shadow-xl">
         <h2 className="text-xl font-semibold text-gray-700">Create New Room</h2>
         <input
           type="text"

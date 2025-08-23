@@ -38,35 +38,43 @@ module.exports = function socketHandler(io) {
           io.to(roomName).emit("receiveMessage", systemMessage.toObject());
         }
 
-        io.to(roomName).emit("updateUsers", roomUsers[roomName]);
+        io.emit("updateUsers", {
+          roomName,
+          userList: roomUsers[roomName],
+          count: roomUsers[roomName].length,
+        });
       } catch (err) {
         console.error("Join room error:", err);
         if (callback) callback({ success: false, error: "Failed to join room" });
       }
     });
 
-    // Send message
-    socket.on("sendMessage", async ({ text }) => {
+    socket.on("sendMessage", ({ text }) => {
       const { roomName, username } = socket;
       if (!roomName || !username) return;
 
-      try {
-        const room = await Room.findOne({ name: roomName });
-        if (!room) return;
+      // Create message object (not yet saved)
+      const message = {
+        room: roomName,
+        senderName: username,
+        text,
+        createdAt: new Date(),
+      };
 
-        const message = new Message({
-          room: room._id,
-          senderName: username,
-          text,
+      // Emit immediately (real-time feeling)
+      io.to(roomName).emit("receiveMessage", message);
+
+      // Save in DB in background
+      Room.findOne({ name: roomName })
+        .then((room) => {
+          if (!room) return;
+          return new Message({ ...message, room: room._id }).save();
+        })
+        .catch((err) => {
+          console.error("Failed to send message:", err);
         });
-        await message.save();
-
-        io.to(roomName).emit("receiveMessage", message.toObject());
-
-      } catch (err) {
-        console.error(err);
-      }
     });
+
 
     // Typing
     socket.on("typing", () => {
@@ -76,22 +84,32 @@ module.exports = function socketHandler(io) {
       if (socket.roomName && socket.username) socket.to(socket.roomName).emit("userStopTyping", socket.username);
     });
 
-    // Disconnect
-    socket.on("disconnect", async () => {
-      const { roomName, username } = socket;
+    // Get users in a specific room
+    socket.on("getRoomUsers", (roomName, callback) => {
+      const users = roomUsers[roomName] || [];
+      callback({ count: users.length });
+    });
+
+    // Left room
+    // Leave room
+    socket.on("leaveRoom", async ({ roomName, username }) => {
       if (!roomName || !username) return;
 
-      // Check if the same user is still connected with another socket
-      const stillConnected = [...io.sockets.sockets.values()].some(
-        (s) => s.username === username && s.id !== socket.id
-      );
-      if (stillConnected) return;
+      socket.leave(roomName);
 
       // Remove user from room list
       roomUsers[roomName] = (roomUsers[roomName] || []).filter(
         (u) => u !== username
       );
 
+      // Update users only in that room
+      io.emit("updateUsers", {
+        roomName,
+        userList: roomUsers[roomName],
+        count: roomUsers[roomName].length,
+      });
+
+      // System message
       const room = await Room.findOne({ name: roomName });
       if (room) {
         const systemMessage = new Message({
@@ -103,8 +121,10 @@ module.exports = function socketHandler(io) {
         await systemMessage.save();
         io.to(roomName).emit("receiveMessage", systemMessage.toObject());
       }
+    });
 
-      io.to(roomName).emit("updateUsers", roomUsers[roomName]);
+    socket.on("disconnect", () => {
+      console.log(`Socket ${socket.id} disconnected`);
     });
 
   });
