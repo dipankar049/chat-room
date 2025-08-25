@@ -12,8 +12,9 @@ export default function CreateRoomModal({
   onClose,
   navigate,
 }) {
+
+  const [loading, setLoading] = useState(false);
   const handleCreateRoom = async () => {
-    const [loading, setLoading] = useState(false);
     if (!newRoom) {
       return alert("Room name is required");
     }
