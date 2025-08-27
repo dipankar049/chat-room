@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { LogOut, PlusCircle } from "lucide-react";
 import axios from "axios";
 import "../style/HomePage.css";
+import { socket } from "../socket/socket";
 
 import RoomCard from "../components/RoomCard";
 import CreateRoomModal from "../components/CreateRoomModal";
@@ -35,9 +36,15 @@ export default function HomePage({ setUser, user, setRoom }) {
     fetchRooms();
   }, []);
 
+  useEffect(() => {
+    socket.on("newRoom", room => {
+      setRoomsList(prev => [...prev, room]);
+    });
+    return () => socket.off("newRoom");
+  }, []);
+
   const handleLogout = async () => {
     try {
-      const user = JSON.parse(sessionStorage.getItem("chat-room-user"));
       console.log("Logging out")
       // if (user?.isGuest && user?.createdRoomId) {
       //   console.log("deleting out")

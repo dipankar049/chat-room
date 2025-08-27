@@ -7,6 +7,10 @@ module.exports = function socketHandler(io) {
   io.on("connection", (socket) => {
     console.log("New client connected");
 
+    socket.on("roomCreated", (createdRoom) => {
+      io.emit("newRoom", createdRoom);
+    })
+
     // Join room
     socket.on("joinRoom", async ({ roomName, username }, callback) => {
       try {
@@ -53,7 +57,7 @@ module.exports = function socketHandler(io) {
       const { roomName, username } = socket;
       if (!roomName || !username) return;
 
-      // Create message object (not yet saved)
+      // Create message object
       const message = {
         room: roomName,
         senderName: username,

@@ -83,7 +83,7 @@ const joinRoom = async (req, res) => {
       await room.save();
     }
 
-    // Optional: Get chat history if needed
+    // Get chat history if needed
     const messages = await Message.find({ room: room._id }).sort({ createdAt: 1 });
 
     res.status(200).json({ message: "Joined room", room, history: messages });

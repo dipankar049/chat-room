@@ -1,6 +1,7 @@
 import axios from "axios";
 import "../style/CreateRoomPage.css";
 import { useState } from "react";
+import { socket } from "../socket/socket";
 
 export default function CreateRoomModal({
   newRoom,
@@ -34,6 +35,7 @@ export default function CreateRoomModal({
 
       if (createRes.status === 201) {
         const createdRoom = createRes.data;
+        socket.emit("roomCreated", createdRoom);
 
         // auto join after create
         const res = await axios.post(`${import.meta.env.VITE_NODE_URI}/room/joinByName`, {
