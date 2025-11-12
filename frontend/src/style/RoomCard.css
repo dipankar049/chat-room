@@ -29,11 +29,13 @@
 .roomcard-join-btn {
   background-color: #2563eb;
   color: #fff;
-  padding: 0.5rem 1rem;
+  padding: 0.3rem 0.7rem;
   border-radius: 0.5rem;
   transition: background-color 0.2s;
   cursor: pointer;
+  margin-left: 10px;
 }
+
 .roomcard-join-btn:hover {
   background-color: #1d4ed8;
 }

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { validateUserInput } from '../utils/validation';
 import "../style/LoginPage.css";
+import { toast } from 'react-toastify';
 
 export default function LoginPage({ setUser }) {
   const [tab, setTab] = useState("login");
@@ -14,25 +15,14 @@ export default function LoginPage({ setUser }) {
     password: "",
   });
 
-  const joinGuestHandler = () => {
-    const username = `Guest${Math.floor(10000 + Math.random() * 90000)}`;
-
-    const guestId = `guest-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-
-    const guestUser = { username, isGuest: true, guestId };
-
-    sessionStorage.setItem("chat-room-user", JSON.stringify(guestUser));
-
-    setUser(guestUser);
-
-    navigate("/home", { replace: true });
-  };
-
   const handleLogin = async () => {
-    if (!validateUserInput({ email: form.email, username: "user", password: form.password }).valid) {
-      alert("Invalid credentials");
+
+    const isValidate = validateUserInput({ email: form.email, username: "user", password: form.password });
+    if (isValidate.message !== "") {
+      toast.error(isValidate.message || "Invalid credentials");
       return;
     }
+
     setLoading(true);
     axios.post(`${import.meta.env.VITE_NODE_URI}/user/login`, form)
       .then((res) => {
@@ -41,33 +31,33 @@ export default function LoginPage({ setUser }) {
         sessionStorage.setItem("chat-room-user", JSON.stringify(res.data.user));
 
         navigate("/home", { replace: true });
-        console.log("Login successful");
+        toast.success("Login successful");
       })
       .catch((err) => {
         const errorMsg = err.response?.data?.message || err.response?.data?.error || "Something went wrong";
-        alert(errorMsg);
-        console.log("Error occurred during login:", errorMsg, err);
+        toast.error(errorMsg);
       }).finally(() => {
         setLoading(false);
       });
   };
 
   const handleSignup = async () => {
-    if (!validateUserInput({ email: form.email, username: form.username, password: form.password }).valid) {
-      alert("Invalid credentials");
+    const isValidate = validateUserInput({ email: form.email, username: form.username, password: form.password });
+    if (isValidate.message !== "") {
+      toast.error(isValidate.message || "Invalid credentials");
       return;
     }
+
     setLoading(true);
     axios.post(`${import.meta.env.VITE_NODE_URI}/user/signup`, form)
       .then(() => {
         setForm({ username: "", email: "", password: "" });
         setTab("login");
-        console.log("Signup successful");
+        toast.success("Signup successful");
       })
       .catch((err) => {
         const errorMsg = err.response?.data?.message || err.response?.data?.error || "Something went wrong";
-        alert(errorMsg);
-        console.log("Error occurred during sing up:", errorMsg, err);
+        toast.error(errorMsg);
       })
       .finally(() => {
         setLoading(false);
@@ -134,13 +124,6 @@ export default function LoginPage({ setUser }) {
               {loading ? "Logging in..." : "Login"}
             </button>
           )}
-          <button
-            id="guest-btn"
-            onClick={joinGuestHandler}
-            disabled={loading}
-          >
-            Join as Guest
-          </button>
         </div>
 
         <p

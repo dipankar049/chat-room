@@ -8,6 +8,7 @@ import { socket } from "../socket/socket";
 import RoomCard from "../components/RoomCard";
 import CreateRoomModal from "../components/CreateRoomModal";
 import JoinRoomModal from "../components/JoinRoomModal";
+import { toast } from "react-toastify";
 
 export default function HomePage({ setUser, user, setRoom }) {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ export default function HomePage({ setUser, user, setRoom }) {
   const [newPassword, setNewPassword] = useState("");
   const [joinPassword, setJoinPassword] = useState("");
   const [Loading, setLoading] = useState(false);
+  const [tab, setTab] = useState('all');
 
   useEffect(() => {
     async function fetchRooms() {
@@ -28,7 +30,8 @@ export default function HomePage({ setUser, user, setRoom }) {
         const res = await axios.get(`${import.meta.env.VITE_NODE_URI}/room`);
         setRoomsList(res.data);
       } catch (err) {
-        console.error("Error fetching rooms:", err);
+        console.error("Error fetching rooms");
+        toast.error("Something went wrong");
       } finally {
         setLoading(false);
       }
@@ -42,25 +45,6 @@ export default function HomePage({ setUser, user, setRoom }) {
     });
     return () => socket.off("newRoom");
   }, []);
-
-  const handleLogout = async () => {
-    try {
-      console.log("Logging out")
-      // if (user?.isGuest && user?.createdRoomId) {
-      //   console.log("deleting out")
-      //   await fetch(`${import.meta.env.VITE_NODE_URI}/rooms/${user.createdRoomId}`, {
-      //     method: "DELETE",
-      //   });
-      // }
-      sessionStorage.removeItem("chat-room-token");
-      sessionStorage.removeItem("chat-room-user");
-      setUser(null);
-      setRoom(null);
-      navigate("/");
-    } catch (err) {
-      console.error("Error during logout:", err);
-    }
-  };
 
   if (!user) return <p>Loading...</p>;
 
@@ -77,13 +61,27 @@ export default function HomePage({ setUser, user, setRoom }) {
             <span className="create-room-text">Create Room</span>
           </button>
           <button
-            id="logout-btn"
-            onClick={handleLogout}
+            id="profile-btn"
+            onClick={() => navigate('/profile')}
           >
-            <LogOut className="logout-icon" />
-            <span className="logout-text">Logout</span>
+            <p>{user.username?.charAt(0)?.toUpperCase() || 'P'}</p>
           </button>
         </div>
+      </div>
+      {/* Tabs */}
+      <div id="homepage-tabs">
+        <button
+          className={tab === "all" ? "active-tab" : "inactive-tab"}
+          onClick={() => setTab("all")}
+        >
+          All Rooms
+        </button>
+        <button
+          className={tab === "mine" ? "active-tab" : "inactive-tab"}
+          onClick={() => setTab("mine")}
+        >
+          My Rooms
+        </button>
       </div>
 
       {/* Room List */}
@@ -94,15 +92,22 @@ export default function HomePage({ setUser, user, setRoom }) {
           {roomsList.length === 0 ? (
             <p id="no-rooms-text">No rooms available.</p>
           ) : (
-            roomsList.map((room) => (
-              <RoomCard
-                key={room.name}
-                room={room}
-                user={user}
-                setRoom={setRoom}
-                navigate={navigate}
-              />
-            ))
+            roomsList
+              .filter(room => {
+                if (tab === "all") return true;
+                return room.owner?.username === user.username;
+              })
+              .map((room) => (
+                <RoomCard
+                  key={room.name}
+                  room={room}
+                  user={user}
+                  setRoom={setRoom}
+                  navigate={navigate}
+                  tab={tab}
+                  setRoomsList={setRoomsList}
+                />
+              ))
           )}
         </div>
       )}

@@ -2,6 +2,7 @@ import axios from "axios";
 import "../style/CreateRoomPage.css";
 import { useState } from "react";
 import { socket } from "../socket/socket";
+import { toast } from "react-toastify";
 
 export default function CreateRoomModal({
   newRoom,
@@ -15,53 +16,52 @@ export default function CreateRoomModal({
 }) {
 
   const [loading, setLoading] = useState(false);
+
   const handleCreateRoom = async () => {
-    if (!newRoom) {
-      return alert("Room name is required");
-    }
+    if (!newRoom) return alert("Room name is required");
+
+    setLoading(true);
+    const body = {
+      name: newRoom,
+      type: "public",
+      ownerId: user.id,
+      ownerName: user.username,
+    };
 
     try {
-      setLoading(true);
-      const body = {
-        name: newRoom,
-        // password: newPassword,
-        type: "public",
-        ownerId: user.isGuest ? null : user.id,
-        guestOwnerId: user.isGuest ? user.guestId : null,
-        ownerName: user.username,
-      };
-
       const createRes = await axios.post(`${import.meta.env.VITE_NODE_URI}/room`, body);
+      toast.success("Room created successfully");
 
-      if (createRes.status === 201) {
-        const createdRoom = createRes.data;
-        socket.emit("roomCreated", createdRoom);
+      const createdRoom = createRes.data;
+      socket.emit("roomCreated", createdRoom);
 
-        // auto join after create
-        const res = await axios.post(`${import.meta.env.VITE_NODE_URI}/room/joinByName`, {
-          roomName: createdRoom.name,
-          // password: newPassword,
-          username: user.username,
-        });
-
-        if (res.status === 200) {
-          const { history } = res.data;
-
-          setRoom(createdRoom.name);
-          onClose();
-
-          navigate(`/chat/${createdRoom.name}`, {
-            state: { history, room: createdRoom.name, username: user.username },
-          });
-        }
-      } else {
-        alert("Room creation failed");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Something went wrong!");
+      // auto join after create
+      joinRoom(createdRoom);
+    } catch (err) {
+      toast.error(err?.response?.data?.message || err.message || "Room creation failed");
     } finally {
       setLoading(false);
+      onClose();
+      setNewRoom("");
+    }
+  };
+
+  const joinRoom = async (createdRoom) => {
+    try {
+      const res = await axios.post(`${import.meta.env.VITE_NODE_URI}/room/joinByName`, {
+        roomName: createdRoom.name,
+        username: user.username,
+      });
+
+      const { history } = res.data;
+
+      setRoom(createdRoom.name);
+
+      navigate(`/chat/${createdRoom.name}`, {
+        state: { history, room: createdRoom.name, username: user.username },
+      });
+    } catch (err) {
+      toast.error(err?.response?.data?.message || err.message || "Failed to join room");
     }
   };
 

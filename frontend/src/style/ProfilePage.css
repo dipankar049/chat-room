@@ -1,0 +1,141 @@
+/* Full page center */
+.profile-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #e3f2fd, #ffffff);
+  color: #2c2c2c;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Profile Card */
+.profile-card {
+  background: rgb(173, 226, 239);
+  border-radius: 20px;
+  padding: 40px 30px;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+/* Avatar Circle */
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  background: #4e54c8;
+  color: white;
+  font-size: 3rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin: 0 auto 20px;
+  box-shadow: 0 4px 15px rgba(78, 84, 200, 0.4);
+}
+
+/* Username and Email */
+.profile-username {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.profile-email {
+  color: #666;
+  font-size: 1rem;
+  margin-bottom: 15px;
+}
+
+/* Details Section */
+.profile-details {
+  background: #f8f9fc;
+  border-radius: 10px;
+  padding: 15px 20px;
+  text-align: left;
+  margin-bottom: 25px;
+  border: 1px solid #eee;
+}
+
+.profile-detail-item {
+  display: flex;
+  justify-content: center;
+  margin: 0 30px 20px 30px;
+}
+
+.label {
+  color: #555;
+  font-weight: 600;
+}
+
+.value {
+  color: #222;
+  font-weight: 400;
+}
+
+/* Logout Button */
+#logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #ff4b5c;
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+#logout-btn:hover {
+  background: #ff6675;
+  transform: scale(1.02);
+}
+
+.logout-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.logout-text {
+  font-size: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .profile-card {
+    padding: 30px 20px;
+  }
+
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+    font-size: 2.5rem;
+  }
+
+  .profile-username {
+    font-size: 1.5rem;
+  }
+
+  .profile-details {
+    font-size: 0.9rem;
+  }
+
+  #logout-btn {
+    font-size: 0.95rem;
+    padding: 10px 20px;
+  }
+}

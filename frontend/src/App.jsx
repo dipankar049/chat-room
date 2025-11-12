@@ -5,6 +5,8 @@ import LoginPage from './pages/LoginPage';
 import ChatPage from './pages/ChatPage';
 import HomePage from './pages/HomePage';
 import { socket } from "./socket/socket";
+import { ToastContainer, toast } from 'react-toastify';
+import ProfilePage from './pages/ProfilePage';
 
 function App() {
   const [username, setUsername] = useState("");
@@ -53,7 +55,16 @@ function App() {
             </ProtectedRoutes>
           }
         />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoutes>
+              <ProfilePage user={user} setUser={setUser} setRoom={setRoom} />
+            </ProtectedRoutes>
+          }
+        />
       </Routes>
+      <ToastContainer autoClose={3000} />
     </BrowserRouter>
   );
 }
