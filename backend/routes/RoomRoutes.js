@@ -9,7 +9,7 @@ const {
 
 router.get('/', fetchAllRooms);
 router.post('/', createRoom);
-router.delete('/:roomId', deleteRoom);
+router.delete('/delete', deleteRoom);
 router.post('/joinByName', joinRoom);
 
 module.exports = router;

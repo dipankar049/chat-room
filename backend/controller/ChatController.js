@@ -17,7 +17,7 @@ const saveMessage = async (req, res) => {
   const { message, senderId, system = false } = req.body;
 
   if (!message || !roomId) {
-    return res.status(400).json({ message: "Invalid input" });
+    return res.status(400).json({ message: "Something went wrong" });
   }
 
   try {
