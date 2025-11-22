@@ -50,6 +50,7 @@ export default function CreateRoomModal({
     try {
       const res = await axios.post(`${import.meta.env.VITE_NODE_URI}/room/joinByName`, {
         roomName: createdRoom.name,
+        userId: user.id,
         username: user.username,
       });
 

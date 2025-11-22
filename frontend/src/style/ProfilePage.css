@@ -43,6 +43,16 @@
   box-shadow: 0 4px 15px rgba(78, 84, 200, 0.4);
 }
 
+.profile-avatar-img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 10px auto;
+  display: block;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
 /* Username and Email */
 .profile-username {
   font-size: 1.8rem;

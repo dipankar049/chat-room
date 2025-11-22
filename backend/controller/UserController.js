@@ -35,7 +35,7 @@ const login = async(req, res) => {
         const token = jwt.sign(
             { id: user._id, username: user.username, email: user.email },
             process.env.JWT_SECRET,
-            { expiresIn: '1h' }
+            { expiresIn: '7d' }
         );
 
         res.status(200).json({
@@ -54,4 +54,46 @@ const login = async(req, res) => {
     }
 }
 
-module.exports = { signup, login };
+const googleRegisterOrLoginUser = async (req, res) => {
+  try {
+    const { uid, email, username, profilePhoto_url } = req.body;
+
+    // Check if user already exists
+    let user = await User.findOne({ email });
+
+    // If not exists, create one
+    if (!user) {
+      user = new User({
+        uid,
+        username,
+        email,
+        profilePhoto_url
+      });
+      await user.save();
+    }
+
+    const token = jwt.sign(
+        { id: user._id, username: user.username, email: user.email },
+        process.env.JWT_SECRET,
+        { expiresIn: '7d' }
+    );
+
+    res.status(200).json({
+      message: "Login successful",
+      token,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        joinedAt: user.createdAt,
+        profilePhoto_url: user.profilePhoto_url
+      }
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "User creation failed" });
+  }
+};
+
+module.exports = { signup, login, googleRegisterOrLoginUser };

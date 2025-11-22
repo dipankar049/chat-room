@@ -7,8 +7,8 @@ import { socket } from "../socket/socket";
 
 import RoomCard from "../components/RoomCard";
 import CreateRoomModal from "../components/CreateRoomModal";
-import JoinRoomModal from "../components/JoinRoomModal";
 import { toast } from "react-toastify";
+import { useMemo } from "react";
 
 export default function HomePage({ setUser, user, setRoom }) {
   const navigate = useNavigate();
@@ -45,6 +45,20 @@ export default function HomePage({ setUser, user, setRoom }) {
     });
     return () => socket.off("newRoom");
   }, []);
+
+  useEffect(() => {
+    socket.on("roomRemoved", ({ roomName }) => {
+      // Remove room from the list
+      setRoomsList(prev => prev.filter(r => r.name !== roomName));
+    });
+
+    return () => socket.off("roomRemoved");
+  }, []);
+
+  const filteredRooms = useMemo(() => {
+    if (tab === "all") return roomsList;
+    return roomsList.filter(room => room.owner === user.id);
+  }, [roomsList, tab, user.id]);
 
   if (!user) return <p>Loading...</p>;
 
@@ -89,25 +103,22 @@ export default function HomePage({ setUser, user, setRoom }) {
         <p id="loading-text">Loading rooms...</p>
       ) : (
         <div id="rooms-grid">
-          {roomsList.length === 0 ? (
-            <p id="no-rooms-text">No rooms available.</p>
+          {filteredRooms.length === 0 ? (
+            <p id="no-rooms-text">
+              {tab === "all" ? "No rooms available." : "You haven't created any rooms yet."}
+            </p>
           ) : (
-            roomsList
-              .filter(room => {
-                if (tab === "all") return true;
-                return room.owner?.username === user.username;
-              })
-              .map((room) => (
-                <RoomCard
-                  key={room.name}
-                  room={room}
-                  user={user}
-                  setRoom={setRoom}
-                  navigate={navigate}
-                  tab={tab}
-                  setRoomsList={setRoomsList}
-                />
-              ))
+            filteredRooms.map((room) => (
+              <RoomCard
+                key={room.name}
+                room={room}
+                user={user}
+                setRoom={setRoom}
+                navigate={navigate}
+                tab={tab}
+                setRoomsList={setRoomsList}
+              />
+            ))
           )}
         </div>
       )}

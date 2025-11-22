@@ -4,6 +4,7 @@ import axios from 'axios';
 import { validateUserInput } from '../utils/validation';
 import "../style/LoginPage.css";
 import { toast } from 'react-toastify';
+import { signInWithGoogle } from "../firebase/auth";
 
 export default function LoginPage({ setUser }) {
   const [tab, setTab] = useState("login");
@@ -62,6 +63,36 @@ export default function LoginPage({ setUser }) {
       .finally(() => {
         setLoading(false);
       });
+  };
+
+  const handleFirebaseLogin = async () => {
+    const loggedInUser = await signInWithGoogle();
+
+    if (loggedInUser) {
+      const userInfo = {
+        uid: loggedInUser.uid,
+        email: loggedInUser.email,
+        username: loggedInUser.displayName || "Anonymous",
+        profilePhoto_url: loggedInUser.photoURL,
+      };
+
+      setLoading(true);
+      axios.post(`${import.meta.env.VITE_NODE_URI}/user/googleLogin`, userInfo)
+      .then((res) => {
+        setUser(res.data.user);
+        sessionStorage.setItem("chat-room-token", res.data.token);
+        sessionStorage.setItem("chat-room-user", JSON.stringify(res.data.user));
+
+        navigate("/home", { replace: true });
+        toast.success("Login successful");
+      })
+      .catch((err) => {
+        const errorMsg = err.response?.data?.message || err.response?.data?.error || "Something went wrong";
+        toast.error(errorMsg);
+      }).finally(() => {
+        setLoading(false);
+      });
+    }
   };
 
   return (
@@ -124,6 +155,18 @@ export default function LoginPage({ setUser }) {
               {loading ? "Logging in..." : "Login"}
             </button>
           )}
+          <button
+            className="google-login-btn"
+            onClick={handleFirebaseLogin}
+            disabled={loading}
+          >
+            <img
+              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+              alt="Google Logo"
+              className="google-icon"
+            />
+            <span>Sign in with Google</span>
+          </button>
         </div>
 
         <p

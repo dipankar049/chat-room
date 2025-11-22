@@ -6,13 +6,10 @@ const roomSchema = new mongoose.Schema({
   type: { type: String, enum: ["private", "public"], default: "public" },
 
   // For registered users
-  owner: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  owner: { type: String, required: true },
+  ownerName: String,
 
-  // For guests
-  guestOwnerId: { type: String },
-  isTemporary: { type: Boolean, default: false },
-
-  members: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  members: [{ userId: String, username: String }],
 }, { timestamps: true });
 
 module.exports = mongoose.model("Room", roomSchema);

@@ -84,6 +84,7 @@
 .message-wrapper {
   margin-bottom: 0.75rem;
   max-width: 20rem;
+  position: relative;
 }
 
 .message-wrapper.current-user {
@@ -122,10 +123,57 @@
   font-size: 0.875rem;
 }
 
+/* Message Footer (Time + Status) */
+.message-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+  justify-content: flex-end;
+}
+
 .message-time {
   font-size: 0.75rem;
   color: #6b7280;
+}
+
+/* Message Status Icons */
+.message-status {
+  font-size: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+.status-sending {
+  color: #9ca3af; /* Gray - Clock icon */
+}
+
+.status-sent {
+  color: #9ca3af; /* Gray - Single check */
+}
+
+.status-delivered {
+  color: #3b82f6; /* Blue - Double check */
+}
+
+.status-failed {
+  color: #ef4444; /* Red - Failed X */
+}
+
+/* Retry Button */
+.retry-button {
   margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: #ef4444;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.retry-button:hover {
+  color: #dc2626;
 }
 
 /* Input */

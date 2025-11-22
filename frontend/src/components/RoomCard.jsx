@@ -98,12 +98,14 @@ export default function RoomCard({ room, user, setRoom, navigate, tab, setRoomsL
         {
           data: {
             roomId,
-            username: user.username
+            userId: user.id,
+            username: user.username,
           }
         }
       );
 
       toast.success("Room Deleted");
+      socket.emit("deleteRoom", { roomName: room.name });
 
       // Update UI instantly
       setRoomsList(prev => prev.filter(r => r._id !== roomId));
@@ -124,7 +126,7 @@ export default function RoomCard({ room, user, setRoom, navigate, tab, setRoomsL
       <div className="roomcard-info">
         <div className="roomcard-name">{room.name}</div>
         <div className="roomcard-owner">
-          Owner: {room?.owner?.username === user.username ? 'You' : room?.owner?.username || "Unknown"}
+          Owner: {room?.owner === user.id ? 'You' : room?.ownerName || "Unknown"}
         </div>
         <div className="roomcard-users">Users Online: {noOfUsers}</div>
       </div>

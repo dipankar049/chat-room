@@ -21,6 +21,7 @@ export default function JoinRoomModal({
       {
         roomName: selectedRoom,
         username: user.username,
+        userId: user.id,
         // password: joinPassword,
       },
       (response) => {
