@@ -22,6 +22,7 @@ export default function HomePage({ setUser, user, setRoom }) {
   const [joinPassword, setJoinPassword] = useState("");
   const [Loading, setLoading] = useState(false);
   const [tab, setTab] = useState('all');
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     async function fetchRooms() {
@@ -60,6 +61,9 @@ export default function HomePage({ setUser, user, setRoom }) {
     return roomsList.filter(room => room.owner === user.id);
   }, [roomsList, tab, user.id]);
 
+  const photoURL = user?.profilePhoto_url || "";
+  const firstLetter = user.username?.charAt(0)?.toUpperCase() || "U";
+
   if (!user) return <p>Loading...</p>;
 
   return (
@@ -78,7 +82,16 @@ export default function HomePage({ setUser, user, setRoom }) {
             id="profile-btn"
             onClick={() => navigate('/profile')}
           >
-            <p>{user.username?.charAt(0)?.toUpperCase() || 'P'}</p>
+            {photoURL && !imageError ? (
+              <img
+                src={photoURL}
+                alt="Profile"
+                className="profile-avatar-img1"
+                onError={() => setImageError(true)}  // triggers fallback
+              />
+            ) : (
+              <p>{firstLetter}</p>
+            )}
           </button>
         </div>
       </div>

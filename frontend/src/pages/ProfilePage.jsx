@@ -4,9 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "../style/ProfilePage.css";
 import { logout } from "../firebase/auth";
+import { useState } from "react";
 
 export default function ProfilePage({ user, setUser, setRoom }) {
   const navigate = useNavigate();
+  const [imageError, setImageError] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -29,7 +31,8 @@ export default function ProfilePage({ user, setUser, setRoom }) {
     return <div className="profile-container">Loading...</div>;
   }
 
-  const firstLetter = user.username?.charAt(0)?.toUpperCase() || "?";
+  const photoURL = user?.profilePhoto_url || "";
+  const firstLetter = user.username?.charAt(0)?.toUpperCase() || "U";
   const formattedDate = new Date(user.joinedAt).toLocaleDateString("en-GB", {
     day: "numeric",
     month: "short",
@@ -39,12 +42,12 @@ export default function ProfilePage({ user, setUser, setRoom }) {
   return (
     <div className="profile-container">
       <div className="profile-card">
-        {user.profilePhoto_url && user.profilePhoto_url.trim() !== "" ? (
+        {photoURL && !imageError ? (
           <img
-            src={user.profilePhoto_url}
+            src={photoURL}
             alt="Profile"
             className="profile-avatar-img"
-            onError={(e) => (e.target.style.display = "none")} // hides if invalid photo URL
+            onError={() => setImageError(true)}  // triggers fallback
           />
         ) : (
           <div className="profile-avatar">{firstLetter}</div>

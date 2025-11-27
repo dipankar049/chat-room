@@ -5,6 +5,7 @@ import { validateUserInput } from '../utils/validation';
 import "../style/LoginPage.css";
 import { toast } from 'react-toastify';
 import { signInWithGoogle } from "../firebase/auth";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function LoginPage({ setUser }) {
   const [tab, setTab] = useState("login");
@@ -15,6 +16,7 @@ export default function LoginPage({ setUser }) {
     email: "",
     password: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
 
@@ -127,13 +129,24 @@ export default function LoginPage({ setUser }) {
 
           <div className="form-group">
             <label className="form-label">Enter password</label>
-            <input
-              type="password"
-              value={form.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
-              placeholder="Your password"
-              className="form-input"
-            />
+            <div className="input-container">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={form.password}
+                onChange={(e) =>
+                  setForm({ ...form, password: e.target.value })
+                }
+                placeholder="Your password"
+                className="form-input"
+              />
+
+              <span
+                className="eye-icon"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
+            </div>
           </div>
         </div>
 

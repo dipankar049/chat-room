@@ -95,6 +95,8 @@
 .message-wrapper.other-user {
   margin-right: auto;
   text-align: left;
+  width: fit-content;
+  max-width: calc(100%-4rem);
 }
 
 /* Message Bubble */
@@ -131,6 +133,14 @@
   margin-top: 0.25rem;
   justify-content: flex-end;
 }
+
+/* .other-message-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+  justify-content: flex-start;
+} */
 
 .message-time {
   font-size: 0.75rem;
